@@ -37,13 +37,15 @@ $("#add-tag").on("click", function (event) {
 
 // function to generate gifs with AJAX - to be called when any button with a city class is clicked
 function generateGifs() {
-    // clear div holding gifs so they dont stack on top of each other
-    $("#gif-div").empty();
+
+    // clear div holding gifs so they don't stack on top of each other
+    // removing this will save eeach gif on the screen
+    $("#gif-box").empty();
 
     //grab the city name from the button to add to querylink
     var city = $(this).attr("data-name");
 
-    // our query URL with the city's tag added into the search parameter and a limit of 10 gifs
+    // our query URL with the city's tag added into the search parameter and a limit of 10 gi
     var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
         city + "&api_key=BkaUZZWcFij6J7AoQj3WtPb1R2p9O6V9&limit=10";
 
@@ -53,17 +55,21 @@ function generateGifs() {
         })
 
         .then(function (response) {
+            // storing results of AJAX call into a variable for convenience
             var results = response.data;
 
+            //for loop to dynamically create a div with an img tag for each gif in our respones
             for (let i = 0; i < results.length; i++) {
                 var gifDiv = $("<div>");
 
+                // grabbing the 'rating' attribute for each gif
                 var gifRating = $("<p>").text("Rating: " + results[i].rating);
 
+                // getting a url for a fixed height version of each gif in an img tag
                 var gif = $("<img>");
                 gif.attr("src", results[i].images.fixed_height.url);
 
-
+                // add the gif's 
                 gifDiv.append(gif);
                 gifDiv.append(gifRating);
 
