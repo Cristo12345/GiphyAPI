@@ -8,13 +8,74 @@ function renderButtons() {
     $("#buttons-div").empty();
 
     for (let i = 0; i < gifArray.length; i++) {
-        
+
+        // dynamically create a new button for each element in the array
         var butt = $("<button>");
+        // add class for the buttons so we can reference them later for our 'generateGif' functions later
         butt.addClass("city");
-        butt.attr("data-name",gifArray[i]);
+        // add a data attr for the button
+        butt.attr("data-name", gifArray[i]);
+        // give button text of user inout
         butt.text(gifArray[i]);
+        // append new button to buttons-div
         $("#buttons-div").append(butt);
     }
 }
 
-renderButtons();    
+//event listener for add-tag button
+// takes user input and pushes it to the array, calling the renderButtons function again to create the new buttons
+$("#add-tag").on("click", function (event) {
+    event.preventDefault();
+
+    var newGIF = $("#gif-input").val().trim();
+    console.log(newGIF);
+
+    gifArray.push(newGIF);
+
+    renderButtons();
+})
+
+// function to generate gifs with AJAX - to be called when any button with a city class is clicked
+function generateGifs() {
+    // clear div holding gifs so they dont stack on top of each other
+    $("#gif-div").empty();
+
+    //grab the city name from the button to add to querylink
+    var city = $(this).attr("data-name");
+
+    // our query URL with the city's tag added into the search parameter and a limit of 10 gifs
+    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+        city + "&api_key=BkaUZZWcFij6J7AoQj3WtPb1R2p9O6V9&limit=10";
+
+    $.ajax({
+            url: queryURL,
+            method: "GET"
+        })
+
+        .then(function (response) {
+            var results = response.data;
+
+            for (let i = 0; i < results.length; i++) {
+                var gifDiv = $("<div>");
+
+                var gifRating = $("<p>").text("Rating: " + results[i].rating);
+
+                var gif = $("<img>");
+                gif.attr("src", results[i].images.fixed_height.url);
+
+
+                gifDiv.append(gif);
+                gifDiv.append(gifRating);
+
+                $("#gif-box").prepend(gifDiv);
+            }
+        })
+
+}
+
+
+// call renderButtons when page loads to load buttons for original array
+renderButtons();
+
+// need to refer to document's .city classes as "$(.city).on(click..." will only work for static buttons (default ones)
+$(document).on("click", ".city", generateGifs);
